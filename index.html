@@ -166,9 +166,8 @@ button{font:inherit;color:inherit}
 
 /* ---------- 푸터 ---------- */
 .foot{margin-top:clamp(96px,12vw,180px);padding-bottom:24px}
-.footTop{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;font-size:15px;border-top:1px solid var(--line);padding-top:28px}
+.footTop{display:flex;justify-content:flex-end;gap:16px;flex-wrap:wrap;font-size:15px;border-top:1px solid var(--line);padding-top:28px}
 .footTop nav{display:flex;gap:24px}
-.footMail{border-bottom:1px solid currentColor}
 .footMark{font:600 clamp(96px,22vw,320px)/.8 var(--display);letter-spacing:-.06em;margin:clamp(40px,6vw,80px) 0 18px;white-space:nowrap;overflow:hidden}
 .footBot{display:flex;justify-content:space-between;font-size:12px;color:var(--muted)}
 
@@ -350,7 +349,7 @@ button{font:inherit;color:inherit}
     <div class="edGrid">
       <div class="fld"><label for="i_name">로고 / 이름</label><input id="i_name" placeholder="LBS"></div>
       <div class="fld"><label for="i_email">연락처 이메일</label><input id="i_email" type="email">
-        <span class="hint">맨 위 안내 띠, Let's talk 버튼, 푸터에 들어가요.</span></div>
+        <span class="hint">맨 위 안내 띠와 Let's talk 버튼(누르면 복사), About의 Contact에 들어가요.</span></div>
     </div>
     <div class="fld"><label for="i_tagline">홈 큰 문장</label><input id="i_tagline">
       <span class="hint">*별표*로 감싼 부분은 회색으로 보여요. 예: *Styling, shows,* websites and logos.</span></div>
@@ -494,7 +493,6 @@ function footer(){
   const n=esc(SITE.name||'LBS');
   return `<footer class="foot wrap">
     <div class="footTop">
-      ${SITE.email?`<a class="footMail" href="mailto:${esc(SITE.email)}">${esc(SITE.email)}</a>`:'<span></span>'}
       <nav aria-label="Footer"><a href="${href('/works')}">Work</a><a href="#/about">About</a></nav>
     </div>
     <div class="footMark" aria-hidden="true">${n}</div>
