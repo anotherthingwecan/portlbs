@@ -71,8 +71,8 @@ button{font:inherit;color:inherit}
 
 /* ---------- 안내 띠 · 상단 메뉴 ---------- */
 .bar{position:relative;background:var(--bar);text-align:center;font-size:13px;padding:8px 44px}
-.bar a{border-bottom:1px solid transparent}
-.bar a:hover{border-bottom-color:currentColor}
+.barLink{background:none;border:0;padding:0;font:inherit;color:inherit;cursor:pointer;border-bottom:1px solid transparent}
+.barLink:hover{border-bottom-color:currentColor}
 .barX{position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:0;cursor:pointer;opacity:.6;font-size:12px;padding:6px}
 .nav{display:flex;align-items:center;height:80px}
 .brand{font:600 21px/1 var(--display);letter-spacing:-.03em}
@@ -247,7 +247,8 @@ button{font:inherit;color:inherit}
 
 /* ---------- 알림 ---------- */
 #toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);z-index:90;background:var(--panel-fg);color:var(--panel);
-  padding:10px 16px;border-radius:999px;font:13px/1.4 var(--sans);max-width:calc(100% - 32px);opacity:0;pointer-events:none;transition:opacity .2s}
+  padding:11px 18px;border-radius:999px;font:13px/1.4 var(--sans);max-width:calc(100% - 32px);opacity:0;pointer-events:none;transition:opacity .2s;
+  box-shadow:0 0 0 1px rgba(255,255,255,.14),0 10px 30px rgba(0,0,0,.22)}
 #toast.on{opacity:1}
 
 @media (max-width:800px){
@@ -476,12 +477,12 @@ function href(path,q){
    ========================================================================= */
 function bar(){
   if(!SITE.email || ssGet('lbs:bar')==='off') return '';
-  return `<div class="bar" id="bar"><a href="mailto:${esc(SITE.email)}">Open for new projects — say hello <span aria-hidden="true">→</span></a>
+  return `<div class="bar" id="bar"><button class="barLink" data-copy>Open for new projects — say hello <span aria-hidden="true">→</span></button>
     <button class="barX" id="barX" aria-label="Close">✕</button></div>`;
 }
 function nav(){
   const p=parseRoute().path;
-  const talk=SITE.email?`<a class="pill" href="mailto:${esc(SITE.email)}">Let’s talk <span aria-hidden="true">↗</span></a>`:'';
+  const talk=SITE.email?`<button class="pill" data-copy aria-label="Copy email address">Let’s talk <span aria-hidden="true">↗</span></button>`:'';
   return `${bar()}<header class="nav wrap">
     <a class="brand" href="#/" aria-label="Home">${esc(SITE.name||'LBS')}</a>
     <nav class="links" aria-label="Main">
@@ -868,9 +869,31 @@ document.addEventListener('click',e=>{
   if(e.target.closest('[data-new]')){ if(OWNER) openEditor(null); return; }
   if(e.target.closest('[data-info]')){ if(OWNER) openInfo(); return; }
   if(e.target.closest('#barX')){ ssSet('lbs:bar','off'); const b=$('bar'); if(b) b.remove(); return; }
+  const cp=e.target.closest('[data-copy]');
+  if(cp){ copyEmail(cp); return; }
   const img=e.target.closest('img[data-lb]');
   if(img){ e.preventDefault(); openLightbox(+img.dataset.lb); }
 });
+
+/* ---------- 연락하기: 누르면 이메일 주소를 복사하고 알려 줌 ---------- */
+async function copyEmail(btn){
+  const em=SITE.email; if(!em) return;
+  let ok=false;
+  try{ await navigator.clipboard.writeText(em); ok=true; }
+  catch(e){
+    try{
+      const t=document.createElement('textarea');
+      t.value=em; t.setAttribute('readonly',''); t.style.cssText='position:fixed;top:0;left:0;opacity:0';
+      document.body.appendChild(t); t.select(); ok=document.execCommand('copy'); t.remove();
+    }catch(_){}
+  }
+  toast(ok?`Email copied — ${em}`:`Email: ${em}`);
+  if(ok&&btn.classList.contains('pill')){
+    if(!btn.dataset.label) btn.dataset.label=btn.innerHTML;
+    btn.textContent='Copied ✓';
+    clearTimeout(btn._t); btn._t=setTimeout(()=>{ btn.innerHTML=btn.dataset.label; },1800);
+  }
+}
 
 /* ---------- 인트로: 첫 방문 때 한 번, 워드마크가 올라왔다가 화면이 걷힘 ---------- */
 function playIntro(){
