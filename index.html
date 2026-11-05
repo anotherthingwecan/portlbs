@@ -385,7 +385,9 @@ const esc = s => String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>
 /* *별표*로 감싼 부분은 회색 */
 const tone = s => esc(s).replace(/\*([^*]+)\*/g,'<span class="mute">$1</span>');
 const catKey = c => String(c).trim().toLowerCase();
-const pub = p => p ? SB_URL+'/storage/v1/object/public/'+BUCKET+'/'+String(p).split('/').map(encodeURIComponent).join('/') : '';
+/* 사진 주소: 보통은 Supabase 저장소 경로, '/'나 http로 시작하면 이 사이트(저장소 works 폴더)나 바깥 주소를 그대로 씀 */
+const isStored = p => !!p && !/^(\/|https?:\/\/)/i.test(String(p));
+const pub = p => !p ? '' : isStored(p) ? SB_URL+'/storage/v1/object/public/'+BUCKET+'/'+String(p).split('/').map(encodeURIComponent).join('/') : String(p);
 const ym = d => d ? String(d).slice(2,4)+'.'+String(d).slice(5,7) : '';
 const thisMonth = () => { const n=new Date(); return n.getFullYear()+'-'+String(n.getMonth()+1).padStart(2,'0'); };
 const safeUrl = u => { u=String(u||'').trim(); if(!u) return ''; return /^https?:\/\//i.test(u) ? u : 'https://'+u; };
@@ -1067,7 +1069,7 @@ async function upload(path,blob){
   if(error) throw error;
 }
 async function removeFiles(paths){
-  const list=[...new Set(paths.filter(Boolean))];
+  const list=[...new Set(paths.filter(isStored))];
   if(!list.length) return;
   try{ const {error}=await sb.storage.from(BUCKET).remove(list); if(error) console.warn(error); }catch(e){ console.warn(e); }
 }
